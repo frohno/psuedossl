@@ -57,7 +57,7 @@ public class AESEncrypter
             generateIV();
         } catch (NoSuchAlgorithmException ex)
         {
-            Logger.getLogger(AESEncrypter.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 

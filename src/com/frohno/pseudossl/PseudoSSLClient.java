@@ -54,7 +54,7 @@ public class PseudoSSLClient
             inputStream = new ObjectInputStream(clientSocket.getInputStream());
         } catch (IOException ex)
         {
-            Logger.getLogger(PseudoSSLClient.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
         
         initialize();
@@ -106,7 +106,7 @@ public class PseudoSSLClient
             outputStream.close();
         } catch (IOException ex)
         {
-            Logger.getLogger(PseudoSSLClient.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 
@@ -117,7 +117,7 @@ public class PseudoSSLClient
             outputStream.writeObject(AESEncrypter.encrypt(aESEncrypter.getKey(), ObjectParser.toByteArray(o), aESEncrypter.getIV()));
         } catch (IOException ex)
         {
-            Logger.getLogger(PseudoSSLClient.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
     
@@ -128,7 +128,7 @@ public class PseudoSSLClient
             return ObjectParser.toObject(aESEncrypter.decrypt(aESEncrypter.getKey(), (SealedObject) inputStream.readObject(), aESEncrypter.getIV()));
         } catch (IOException | ClassNotFoundException ex)
         {
-            Logger.getLogger(PseudoSSLClient.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
         
         return null;

@@ -28,6 +28,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,9 +57,12 @@ public class PseudoSSLServer
             System.out.println("Connection established");
             inputStream = new ObjectInputStream(socket.getInputStream());
             outputStream = new ObjectOutputStream(socket.getOutputStream());
+        }  catch (SocketException ex)
+        {
+            System.out.println("Connection reset");
         } catch (IOException ex)
         {
-            Logger.getLogger(PseudoSSLServer.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
         
         initialize();
@@ -90,6 +94,10 @@ public class PseudoSSLServer
             outputStream.writeObject(AESEncrypter.encrypt(aESecretKey, ObjectParser.toByteArray(java.net.InetAddress.getLocalHost().getHostAddress()), iv));
             System.out.println("Encrypted communication initialized");
             return true;
+        }  catch (SocketException ex)
+        {
+            System.out.println("Connection reset");
+            return false;
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -103,9 +111,12 @@ public class PseudoSSLServer
         {
             inputStream.close();
             outputStream.close();
+        } catch (SocketException ex)
+        {
+            System.out.println("Connection reset");
         } catch (IOException ex)
         {
-            Logger.getLogger(PseudoSSLClient.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
     
@@ -114,9 +125,12 @@ public class PseudoSSLServer
         try
         {
             outputStream.writeObject(AESEncrypter.encrypt(aESecretKey, ObjectParser.toByteArray(o), iv));
+        }  catch (SocketException ex)
+        {
+            System.out.println("Connection reset");
         } catch (IOException ex)
         {
-            Logger.getLogger(PseudoSSLClient.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
     
@@ -125,9 +139,12 @@ public class PseudoSSLServer
         try
         {
             return ObjectParser.toObject(AESEncrypter.decrypt(aESecretKey, (SealedObject) inputStream.readObject(), iv));
+        }  catch (SocketException ex)
+        {
+            System.out.println("Connection reset");
         } catch (IOException | ClassNotFoundException ex)
         {
-            Logger.getLogger(PseudoSSLClient.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
         
         return null;

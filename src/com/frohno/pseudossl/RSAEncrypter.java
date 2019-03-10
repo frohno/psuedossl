@@ -53,7 +53,7 @@ public class RSAEncrypter
             privateKey = keyPair.getPrivate();
         } catch (NoSuchAlgorithmException ex)
         {
-            Logger.getLogger(RSAEncrypter.class.getName()).log(Level.SEVERE, null, ex);
+           ex.printStackTrace();
         }
         
     }
