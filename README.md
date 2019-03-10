@@ -9,5 +9,5 @@ Download the Java library [here](https://github.com/frohno/psuedossl/releases)
 ## DISCLAIMERS:
 First of all, read the [license](https://github.com/frohno/psuedossl/blob/master/LICENSE)!
 
-Second, this is an amaturish attempt at recreating a pseudo SSL implementation. DO NOT THINK IT IS SECURE! Read up on SSL and use it if you plan to send actual sensetive data.
+Second, this is an amaturish attempt at recreating a pseudo SSL implementation. DO NOT THINK IT IS SECURE! Read up on SSL and use that instead of this if you plan to send actual sensetive data.
 
