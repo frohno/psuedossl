@@ -44,17 +44,15 @@ public class PseudoSSLServer
     private ObjectOutputStream outputStream = null;
     private ObjectInputStream inputStream = null;
     private final RSAEncrypter rSAEncrypter = new RSAEncrypter();
-    private ServerSocket serverSocket = null;
     private Socket socket = null;
     private SecretKey aESecretKey = null;
     private byte[] iv = null;
 
-    public PseudoSSLServer(ServerSocket serverSocket)
+    public PseudoSSLServer(Socket socket)
     {
         try
         {
-            this.serverSocket = serverSocket;
-            Socket socket = serverSocket.accept();
+            this.socket = socket;
             System.out.println("Connection established");
             inputStream = new ObjectInputStream(socket.getInputStream());
             outputStream = new ObjectOutputStream(socket.getOutputStream());
