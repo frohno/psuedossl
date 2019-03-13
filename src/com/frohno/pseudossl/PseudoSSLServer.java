@@ -23,6 +23,7 @@
  */
 package com.frohno.pseudossl;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -125,7 +126,7 @@ public class PseudoSSLServer
         try
         {
             outputStream.writeObject(AESEncrypter.encrypt(aESecretKey, ObjectParser.toByteArray(o), iv));
-        }  catch (SocketException ex)
+        }  catch (SocketException | EOFException ex)
         {
             System.out.println("Connection reset");
         } catch (IOException ex)
@@ -139,7 +140,7 @@ public class PseudoSSLServer
         try
         {
             return ObjectParser.toObject(AESEncrypter.decrypt(aESecretKey, (SealedObject) inputStream.readObject(), iv));
-        }  catch (SocketException ex)
+        }  catch (SocketException | EOFException ex)
         {
             System.out.println("Connection reset");
         } catch (IOException | ClassNotFoundException ex)
