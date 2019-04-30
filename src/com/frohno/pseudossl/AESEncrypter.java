@@ -49,6 +49,9 @@ public class AESEncrypter
     private SecretKey secretKey;
     static byte[] iv;
 
+    /**
+     *
+     */
     public AESEncrypter()
     {
         try
@@ -61,6 +64,11 @@ public class AESEncrypter
         }
     }
 
+    /**
+     *
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
     public SecretKey buildKey() throws NoSuchAlgorithmException
     {
         final int keySize = 256;
@@ -69,6 +77,13 @@ public class AESEncrypter
         return keyGenerator.generateKey();
     }
 
+    /**
+     *
+     * @param secretKey
+     * @param data
+     * @param iv
+     * @return
+     */
     public static SealedObject encrypt(SecretKey secretKey, byte[] data, byte[] iv)
     {
         SealedObject output = null;
@@ -84,6 +99,13 @@ public class AESEncrypter
         return output;
     }
 
+    /**
+     *
+     * @param secretKey
+     * @param encrypted
+     * @param iv
+     * @return
+     */
     public static byte[] decrypt(SecretKey secretKey, SealedObject encrypted, byte[] iv)
     {
         byte[] output = null;
@@ -99,6 +121,11 @@ public class AESEncrypter
         return output;
     }
 
+    /**
+     *
+     * @param o
+     * @return
+     */
     public static byte[] toByteArray(Object o)
     {
         // Reference for stream of bytes
@@ -117,6 +144,11 @@ public class AESEncrypter
         return stream;
     }
 
+    /**
+     *
+     * @param data
+     * @return
+     */
     public static Object toObject(byte[] data)
     {
         Object obj = null;
@@ -133,11 +165,18 @@ public class AESEncrypter
         return obj;
     }
 
+    /**
+     *
+     * @return
+     */
     public SecretKey getKey()
     {
         return secretKey;
     }
 
+    /**
+     *
+     */
     public static void generateIV()
     {
         // generate IV
@@ -146,6 +185,10 @@ public class AESEncrypter
         random.nextBytes(iv);
     }
     
+    /**
+     *
+     * @return
+     */
     public byte[] getIV()
     {
         return iv;

@@ -44,6 +44,9 @@ public class RSAEncrypter
     private PublicKey pubKey;
     private PrivateKey privateKey;
 
+    /**
+     *
+     */
     public RSAEncrypter()
     {
         try
@@ -58,6 +61,11 @@ public class RSAEncrypter
         
     }
 
+    /**
+     *
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
     public KeyPair buildKeyPair() throws NoSuchAlgorithmException
     {
         final int keySize = 2048;
@@ -66,6 +74,12 @@ public class RSAEncrypter
         return keyPairGenerator.genKeyPair();
     }
 
+    /**
+     *
+     * @param privateKey
+     * @param data
+     * @return
+     */
     public static byte[] encrypt(PrivateKey privateKey, byte[] data)
     {
         byte[] output = null;
@@ -81,6 +95,12 @@ public class RSAEncrypter
         return output;
     }
     
+    /**
+     *
+     * @param publicKey
+     * @param data
+     * @return
+     */
     public static byte[] encrypt(PublicKey publicKey, byte[] data)
     {
         byte[] output = null;
@@ -96,6 +116,12 @@ public class RSAEncrypter
         return output;
     }
 
+    /**
+     *
+     * @param publicKey
+     * @param encrypted
+     * @return
+     */
     public static byte[] decrypt(PublicKey publicKey, byte[] encrypted)
     {
         byte[] output = null;
@@ -111,6 +137,12 @@ public class RSAEncrypter
         return output;
     }
     
+    /**
+     *
+     * @param privateKey
+     * @param encrypted
+     * @return
+     */
     public static byte[] decrypt(PrivateKey privateKey, byte[] encrypted)
     {
         byte[] output = null;
@@ -126,12 +158,19 @@ public class RSAEncrypter
         return output;
     }
 
-
+    /**
+     *
+     * @return
+     */
     public PublicKey getPubKey()
     {
         return pubKey;
     }
 
+    /**
+     *
+     * @return
+     */
     public PrivateKey getPrivateKey()
     {
         return privateKey;

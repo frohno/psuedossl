@@ -36,6 +36,11 @@ import java.io.ObjectOutputStream;
 public class ObjectParser
 {
     
+    /**
+     *
+     * @param o
+     * @return
+     */
     public static byte[] toByteArray(Object o)
     {
         // Reference for stream of bytes
@@ -52,6 +57,11 @@ public class ObjectParser
         return stream;
     }
 
+    /**
+     *
+     * @param data
+     * @return
+     */
     public static Object toObject(byte[] data)
     {
         Object obj = null;

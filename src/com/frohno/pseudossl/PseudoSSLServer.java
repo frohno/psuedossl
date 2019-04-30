@@ -23,25 +23,26 @@
  */
 package com.frohno.pseudossl;
 
+import static com.frohno.pseudossl.NetworkUtils.isInternal;
+import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URL;
 import java.security.PublicKey;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 
 /**
- *
- * @author Oliver
+ * Serverside for PseudoSSL
+ * @author Frohno
  */
-public class PseudoSSLServer
-{
+public class PseudoSSLServer {
 
     private ObjectOutputStream outputStream = null;
     private ObjectInputStream inputStream = null;
@@ -49,105 +50,101 @@ public class PseudoSSLServer
     private Socket socket = null;
     private SecretKey aESecretKey = null;
     private byte[] iv = null;
+    private InetAddress ip;
 
-    public PseudoSSLServer(Socket socket)
-    {
-        try
-        {
+    /**
+     * Constructor
+     * @param socket the socket to which a specific client is connect
+     */
+    public PseudoSSLServer(Socket socket) {
+        try {
             this.socket = socket;
-            System.out.println("Connection established");
             inputStream = new ObjectInputStream(socket.getInputStream());
             outputStream = new ObjectOutputStream(socket.getOutputStream());
-        }  catch (SocketException ex)
-        {
-            System.out.println("Connection reset");
-        } catch (IOException ex)
-        {
-            ex.printStackTrace();
+            ip = isInternal(socket.getInetAddress()) ? socket.getInetAddress() : InetAddress.getByName(new BufferedReader(new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream())).readLine());
+        } catch (SocketException ex) {
+        } catch (IOException ex) {
+            //ex.printStackTrace();
         }
-        
+
         initialize();
     }
-
-    private boolean initialize()
-    {
-        try
-        {
+    
+    /**
+     * Initializes the connection, setting up an AES key, by way of a similar-to SSL protocol
+     * @return false upon error
+     */
+    private boolean initialize() {
+        try {
             //Recieve Client Public Key
             PublicKey clientPublicKey = (PublicKey) inputStream.readObject();
-            System.out.println("Client's public key has been recieved");
             //Send Responce
-            outputStream.writeObject(rSAEncrypter.encrypt(clientPublicKey, ObjectParser.toByteArray(java.net.InetAddress.getLocalHost().getHostAddress())));
+            outputStream.writeObject(rSAEncrypter.encrypt(clientPublicKey, ObjectParser.toByteArray(ip)));
             outputStream.flush();
 
             //Sending Public Key
             outputStream.writeObject(rSAEncrypter.getPubKey());
             outputStream.flush();
-            System.out.println("Public key has been sent");
             //Recieve Response
-            String ip = (String) ObjectParser.toObject(rSAEncrypter.decrypt(rSAEncrypter.getPrivateKey(), (byte[]) inputStream.readObject()));
-            System.out.println("IP: " + ip);
+            InetAddress ipClient = (InetAddress) ObjectParser.toObject(rSAEncrypter.decrypt(rSAEncrypter.getPrivateKey(), (byte[]) inputStream.readObject()));
+            if (ipClient.getAddress() != socket.getInetAddress().getAddress()) {
+                System.out.println(ipClient.getAddress());
+                System.out.println(socket.getInetAddress().getAddress());
+                throw new IllegalAccessException();
+            }
 
             //Recieve AES Secret Key
             aESecretKey = (SecretKey) ObjectParser.toObject(rSAEncrypter.decrypt(rSAEncrypter.getPrivateKey(), (byte[]) inputStream.readObject()));
             iv = (byte[]) ObjectParser.toObject(rSAEncrypter.decrypt(rSAEncrypter.getPrivateKey(), (byte[]) inputStream.readObject()));
             //Send Responce
-            outputStream.writeObject(AESEncrypter.encrypt(aESecretKey, ObjectParser.toByteArray(java.net.InetAddress.getLocalHost().getHostAddress()), iv));
-            System.out.println("Encrypted communication initialized");
+            outputStream.writeObject(AESEncrypter.encrypt(aESecretKey, ObjectParser.toByteArray(ip), iv));
             return true;
-        }  catch (SocketException ex)
-        {
-            System.out.println("Connection reset");
-            return false;
-        } catch (Exception e)
-        {
-            e.printStackTrace();
+        } catch (Exception e) {
             return false;
         }
     }
 
-    public void close()
-    {
-        try
-        {
+    /**
+     * Close both the input and output stream created with the socket
+     */
+    public void close() {
+        try {
             inputStream.close();
             outputStream.close();
-        } catch (SocketException ex)
-        {
+        } catch (SocketException ex) {
             System.out.println("Connection reset");
-        } catch (IOException ex)
-        {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
-    
-        public void sendObject(Object o)
-    {
-        try
-        {
+
+    /**
+     * Sends and encrypts an object
+     * @param o the object to be sent
+     */
+    public void sendObject(Object o) {
+        try {
             outputStream.writeObject(AESEncrypter.encrypt(aESecretKey, ObjectParser.toByteArray(o), iv));
-        }  catch (SocketException | EOFException ex)
-        {
+        } catch (SocketException | EOFException ex) {
             System.out.println("Connection reset");
-        } catch (IOException ex)
-        {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
-    
-    public Object recieveObject()
-    {
-        try
-        {
+
+    /**
+     * Waits for an object, which is then decrypted on arrival
+     * @return the decrypted object, which has to be cast by the user to the original type
+     */
+    public Object recieveObject() {
+        try {
             return ObjectParser.toObject(AESEncrypter.decrypt(aESecretKey, (SealedObject) inputStream.readObject(), iv));
-        }  catch (SocketException | EOFException ex)
-        {
+        } catch (SocketException | EOFException ex) {
             System.out.println("Connection reset");
-        } catch (IOException | ClassNotFoundException ex)
-        {
+        } catch (IOException | ClassNotFoundException ex) {
             ex.printStackTrace();
         }
-        
+
         return null;
     }
 }
