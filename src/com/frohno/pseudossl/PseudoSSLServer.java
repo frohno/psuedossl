@@ -80,16 +80,17 @@ public class PseudoSSLServer {
             PublicKey clientPublicKey = (PublicKey) inputStream.readObject();
             //Send Responce
             outputStream.writeObject(rSAEncrypter.encrypt(clientPublicKey, ObjectParser.toByteArray(ip)));
-            outputStream.flush();
+            //outputStream.flush();
 
             //Sending Public Key
             outputStream.writeObject(rSAEncrypter.getPubKey());
             outputStream.flush();
+            
             //Recieve Response
             InetAddress ipClient = (InetAddress) ObjectParser.toObject(rSAEncrypter.decrypt(rSAEncrypter.getPrivateKey(), (byte[]) inputStream.readObject()));
-            if (ipClient.getAddress() != socket.getInetAddress().getAddress()) {
-                System.out.println(ipClient.getAddress());
-                System.out.println(socket.getInetAddress().getAddress());
+            if (!ipClient.getHostAddress().equals(socket.getInetAddress().getHostAddress())) {
+                System.out.println(ipClient.getHostAddress());
+                System.out.println(socket.getInetAddress().getHostAddress());
                 throw new IllegalAccessException();
             }
 

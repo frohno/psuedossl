@@ -74,11 +74,14 @@ public class PseudoSSLClient {
             //Sending Public Key
             outputStream.writeObject(rSAEncrypter.getPubKey());
             outputStream.flush();
+            
             //Recieve Response
-            InetAddress ipServer = (InetAddress) ObjectParser.toObject(rSAEncrypter.decrypt(rSAEncrypter.getPrivateKey(), (byte[]) inputStream.readObject()));
-            if (ipServer.getAddress() != clientSocket.getInetAddress().getAddress()) {
-                System.out.println(ipServer.getAddress());
-                System.out.println(clientSocket.getInetAddress().getAddress());
+            byte[] b = (byte[]) inputStream.readObject();
+            byte[] b2 = (byte[]) rSAEncrypter.decrypt(rSAEncrypter.getPrivateKey(), b);
+            InetAddress ipServer = (InetAddress) ObjectParser.toObject(b2);
+            if (!ipServer.getHostAddress().equals(clientSocket.getInetAddress().getHostAddress())) {
+                System.out.println(ipServer.getHostAddress());
+                System.out.println(clientSocket.getInetAddress().getHostAddress());
                 throw new IllegalAccessException();
             }
 
@@ -93,9 +96,9 @@ public class PseudoSSLClient {
             outputStream.writeObject(rSAEncrypter.encrypt(serverPublicKey, ObjectParser.toByteArray(aESEncrypter.getIV())));
             //Recieve Responce
             InetAddress ipServer2 = (InetAddress) ObjectParser.toObject(aESEncrypter.decrypt(aESEncrypter.getKey(), (SealedObject) inputStream.readObject(), aESEncrypter.getIV()));
-            if (ipServer2.getAddress() != clientSocket.getInetAddress().getAddress()) {
-                System.out.println(ipServer2.getAddress());
-                System.out.println(clientSocket.getInetAddress().getAddress());
+            if (!ipServer2.getHostAddress().equals(clientSocket.getInetAddress().getHostAddress())) {
+                System.out.println(ipServer2.getHostAddress());
+                System.out.println(clientSocket.getInetAddress().getHostAddress());
                 throw new IllegalAccessException();
             }
             return true;
